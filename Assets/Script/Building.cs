@@ -18,9 +18,30 @@ public class Building : MonoBehaviour
 
     public BuildingEvents buildingEvents;
 
+    private DeliveryOrderSystem orderSystem;
+
     public void Start()
     {
         SetupBuilding();
+        orderSystem = FindFirstObjectByType<DeliveryOrderSystem>();
+        CreateNameTag();
+    }
+
+    void CreateNameTag()
+    {
+        //건물 위에 이름표 생성
+        GameObject nameTag = new GameObject("NameTag");
+        nameTag.transform.SetParent(transform);
+        nameTag.transform.localPosition = Vector3.up * 1.5f;
+
+        TextMesh textMesh = nameTag.AddComponent<TextMesh>();
+        textMesh.text = buildingName;
+        textMesh.characterSize = 0.2f;
+        textMesh.anchor = TextAnchor.MiddleCenter;
+        textMesh.color = Color.white;
+        textMesh.fontSize = 20;
+
+        nameTag.AddComponent<Billboard>();
     }
 
 
