@@ -64,7 +64,7 @@ app.post("/api/dungeon/enter" , (req, res) => {
 
     if(dungeonRun && dungeonRun.state === "IN_PROGRESS")
     {
-        return failure(res, 409, "RUN_ALREAY_ACTIVE", "이미 탐험 중입니다.");
+        return failure(res, 409, "RUN_ALREADY_ACTIVE", "이미 탐험 중입니다.");
     }
 
     player.hp = player.maxHp;
@@ -91,7 +91,7 @@ app.post("/api/dungeon/action" , (req,res) => {
     const action = req.body.action;
     const room = currentRoom();
 
-    if(action === "ATTACK" && room.type === "MONSTER" && room.state == "ACTIVE")
+    if(action === "ATTACK" && room.type === "MONSTER" && room.state === "ACTIVE")
     {
         room.monsterHp = Math.max(0, room.monsterHp - player.attack);
 
@@ -136,7 +136,15 @@ app.post("/api/dungeon/action" , (req,res) => {
 
         dungeonRun.currentRoomIndex += 1;
         currentRoom().state = "ACTIVE";
-        return success(res, "DUNGEON_RETUREND", "탐험을 마치고 귀환했습니다.", gameState());
+        return success(res, "ROOM_ADVANCED", "다음 방으로 이동했습니다.", gameState());
+    }
+
+    if(action === "RETURN" && room.type === "EXIT" && room.state === "ACTIVE")
+    {
+        player.gold += dungeonRun.runGold;
+        dUngeonRun.runGold = 0;
+        dungeonRun.state = "COMPLETED";
+        return success(res, "DUNGEON_RETURNED", "탐험을 마치고 귀환했습니다.", gameState());
     }
 
     return failure(res, 409, "ACTION_NOT_ALLOWED", "현재 방에서 할 수 없는 행동 입니다. ");
